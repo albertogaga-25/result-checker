@@ -1,0 +1,189 @@
+/* css/style.css */
+
+/* 1. Basic Setup */
+/* 1. Basic Setup */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px 0; /* Adds space at the very top and bottom of pages */
+    min-height: 100vh; /* Changed from height to min-height */
+
+}
+
+/* Center the login box specifically */
+body:has(.login-box) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2. Styling the Login Box (index.html) */
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+    width: 350px;
+    text-align: center;
+}
+
+h2 {
+    color: #1a73e8; /* University Blue */
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: block;
+    box-sizing: border-box; /* Makes sure padding doesn't break width */
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #1557b0; /* Darker blue when hovering */
+}
+
+/* 3. Styling the Dashboard (dashboard.html) */
+/* Custom Wide Workspace for the Transcript */
+.wide-container {
+    max-width: 950px !important;
+    width: 95% !important;
+    border: 2px solid #333;
+    padding: 40px !important;
+    margin: 20px auto;
+}
+
+/* Institutional Typography Layout */
+.uni-header {
+    text-align: center;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+.uni-header h2 { margin: 0; font-size: 22px; color: #000; font-weight: 800; }
+.uni-header h4 { margin: 2px 0; font-size: 15px; color: #333; }
+.uni-header h5 { margin: 2px 0; font-size: 14px; color: #444; }
+.uni-header h6 { margin: 2px 0; font-size: 13px; color: #555; border-bottom: 1px double #000; display: inline-block; padding-bottom: 4px; }
+.session-tag { margin-top: 15px; font-weight: bold; font-size: 13px; background: #eef2f7; padding: 6px; display: inline-block; }
+
+/* Student Profiling Header Box */
+.student-meta {
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* Formal Sheet Tables */
+#academicTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+#academicTable th, #academicTable td {
+    border: 1px solid #000 !important; /* Strict lines like spreadsheet screenshots */
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+}
+.header-main-row th, .header-sub-row th {
+    background-color: #f4f6f9;
+    font-weight: bold;
+    color: #000;
+}
+
+.bold-text { font-weight: bold; }
+
+/* Official Transcript Summary Grid footer rules */
+.gpa-display-panel {
+    margin-top: 25px;
+    text-align: right;
+    font-size: 18px;
+    font-weight: bold;
+}
+.gpa-number {
+    border-bottom: 4px double #000;
+    padding: 0 10px;
+    font-size: 22px;
+}
+
+.action-footer {
+    margin-top: 35px;
+    text-align: center;
+}
+
+/* --- ADMIN PANEL CARD INTERFACE STYLES --- */
+
+/* Base cards for course modules */
+.course-input-group {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #fdfdfd;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Subtle accent focus highlight for dynamically added tracks */
+.dynamic-group {
+    background: #fbfcfe;
+    border: 1px dashed #cbd5e1;
+}
+
+/* Header layout holding title and inline delete switch side-by-side */
+.course-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+/* Minimalist professional inline removal button */
+.btn-delete-course {
+    background-color: transparent !important;
+    color: #dc2626 !important;
+    border: 1px solid #fee2e2 !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    width: auto !important;
+    margin: 0 !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-delete-course:hover {
+    background-color: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+}
+
+/* --- CENTERED ADMIN LAYOUT WRAPPER --- */
+.admin-center-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+}

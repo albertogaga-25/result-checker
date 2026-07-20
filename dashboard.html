@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Academic Statement</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="container wide-container">
+        <header class="uni-header">
+            <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+            <h4>AGBARHA-OTOR, DELTA STATE, NIGERIA</h4>
+            <h5>FACULTY OF NATURAL AND APPLIED SCIENCES</h5>
+            <h6>DEPARTMENT OF MATHEMATICS AND COMPUTER SCIENCE</h6>
+            <p class="session-tag">FIRST SEMESTER 2025/2026 ACADEMIC SESSION RESULTS</p>
+        </header>
+
+        <div class="student-meta">
+            <p><strong>NAME:</strong> <span id="studentName">---</span></p>
+            <p><strong>MATRIC NO:</strong> <span id="studentMatric">---</span></p>
+        </div>
+
+        <div class="table-responsive">
+            <table id="academicTable">
+                <thead>
+                    <tr class="header-main-row">
+                        <th rowspan="2" style="width: 5%">S/N</th>
+                        <th rowspan="2" style="width: 35%">COURSE CODE & TITLE</th>
+                        <th rowspan="2" style="width: 10%">UNIT</th>
+                        <th colspan="2" style="text-align: center; width: 20%;">PERFORMANCE</th>
+                        <th rowspan="2" style="width: 10%">QP</th>
+                    </tr>
+                    <tr class="header-sub-row">
+                        <th style="text-align: center;">SC (Score)</th>
+                        <th style="text-align: center;">GD (Grade)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    </tbody>
+                <tfoot>
+                    <tr class="footer-summary-row">
+                        <td colspan="2" style="text-align: right; font-weight: bold;">TOTALS:</td>
+                        <td id="totalUnits" class="bold-text">0</td>
+                        <td colspan="2"></td>
+                        <td id="totalPoints" class="bold-text">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="gpa-display-panel">
+            <span>B.Sc. PROGRAMME GPA: </span>
+            <span id="gpaScore" class="gpa-number">0.00</span>
+        </div>
+        
+        <div class="action-footer">
+            <button onclick="window.print()" class="btn-print">🖨️ Print Result Sheet</button>
+            <button onclick="logout()" class="btn-logout">Logout Portal</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
