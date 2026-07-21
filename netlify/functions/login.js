@@ -9,9 +9,12 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { role, username, password } = JSON.parse(event.body || '{}');
+    const { role, username, regNumber, password } = JSON.parse(event.body || '{}');
+    
+    // Accepts either 'username' or 'regNumber' from the frontend
+    const userIdentifier = username || regNumber;
 
-    if (!username || !password) {
+    if (!userIdentifier || !password) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: 'Username and password required' }),
@@ -22,7 +25,7 @@ exports.handler = async (event) => {
 
     // --- ADMIN LOGIN ---
     if (role === 'admin') {
-      const admin = await db.collection('admins').findOne({ username, password });
+      const admin = await db.collection('admins').findOne({ username: userIdentifier, password });
 
       if (!admin) {
         return {
@@ -40,8 +43,7 @@ exports.handler = async (event) => {
     
     // --- STUDENT LOGIN ---
     else {
-      // Matches 'username' from form to 'regNumber' in MongoDB
-      const student = await db.collection('students').findOne({ regNumber: username, password });
+      const student = await db.collection('students').findOne({ regNumber: userIdentifier, password });
 
       if (!student) {
         return {
