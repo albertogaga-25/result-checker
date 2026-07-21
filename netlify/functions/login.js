@@ -1,35 +1,37 @@
-function switchRole(role) {
+document.addEventListener('DOMContentLoaded', () => {
     const studentForm = document.getElementById('studentLoginForm');
     const adminForm = document.getElementById('adminLoginForm');
     const btnStudent = document.getElementById('btnStudentRole');
     const btnAdmin = document.getElementById('btnAdminRole');
     const errorMsg = document.getElementById('loginErrorMessage');
 
-    if (errorMsg) errorMsg.innerText = '';
-
-    if (role === 'student') {
-        studentForm.style.display = 'block';
-        adminForm.style.display = 'none';
-        btnStudent.style.backgroundColor = '#0066cc';
-        btnStudent.style.color = '#ffffff';
-        btnAdmin.style.backgroundColor = '#e0e0e0';
-        btnAdmin.style.color = '#333333';
-    } else if (role === 'admin') {
-        studentForm.style.display = 'none';
-        adminForm.style.display = 'block';
-        btnAdmin.style.backgroundColor = '#000000';
-        btnAdmin.style.color = '#ffffff';
-        btnStudent.style.backgroundColor = '#e0e0e0';
-        btnStudent.style.color = '#333333';
+    // Switch to Student Role
+    if (btnStudent) {
+        btnStudent.addEventListener('click', () => {
+            studentForm.style.display = 'block';
+            adminForm.style.display = 'none';
+            btnStudent.style.backgroundColor = '#0066cc';
+            btnStudent.style.color = '#ffffff';
+            btnAdmin.style.backgroundColor = '#e0e0e0';
+            btnAdmin.style.color = '#333333';
+            if (errorMsg) errorMsg.innerText = '';
+        });
     }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    const studentForm = document.getElementById('studentLoginForm');
-    const adminForm = document.getElementById('adminLoginForm');
-    const errorMsg = document.getElementById('loginErrorMessage');
+    // Switch to Admin Role
+    if (btnAdmin) {
+        btnAdmin.addEventListener('click', () => {
+            studentForm.style.display = 'none';
+            adminForm.style.display = 'block';
+            btnAdmin.style.backgroundColor = '#000000';
+            btnAdmin.style.color = '#ffffff';
+            btnStudent.style.backgroundColor = '#e0e0e0';
+            btnStudent.style.color = '#333333';
+            if (errorMsg) errorMsg.innerText = '';
+        });
+    }
 
-    // Handle Student Submit
+    // Handle Student Form Submit
     if (studentForm) {
         studentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -68,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle Admin Submit
+    // Handle Admin Form Submit
     if (adminForm) {
         adminForm.addEventListener('submit', async (e) => {
             e.preventDefault();
