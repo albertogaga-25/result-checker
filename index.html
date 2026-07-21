@@ -1,112 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Michael and Cecilia Ibru University - Portal Login</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .box { width: 100%; max-width: 450px; background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #ccc; }
-        h2 { color: #0066cc; text-align: center; font-size: 18px; margin-bottom: 5px; }
-        p.sub { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tabs button { flex: 1; padding: 10px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; }
-        #tabStudent { background: #0066cc; color: white; }
-        #tabAdmin { background: #e0e0e0; color: #333; }
-        .field { margin-bottom: 12px; }
-        .field label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-        .field input, .field select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-submit { width: 100%; padding: 12px; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
-        .btn-blue { background: #0066cc; }
-        .btn-black { background: #000; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MICHAEL AND CECILIA IBRU UNIVERSITY - Student Result Checking Portal</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
+    .header { text-align: center; margin-bottom: 25px; }
+    .header h2 { color: #0056b3; font-size: 20px; margin: 0 0 5px 0; font-weight: bold; }
+    .header p { color: #666; font-size: 14px; margin: 0; }
+    
+    .tab-container { display: flex; gap: 10px; margin-bottom: 25px; }
+    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; text-align: center; }
+    .tab-btn.active { background-color: #0066cc; color: white; }
+    .tab-btn.inactive { background-color: #e2e8f0; color: #333; }
+
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #333; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    input:focus, select:focus { border-color: #0066cc; }
+
+    .btn-submit { width: 100%; padding: 14px; background-color: #0066cc; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    .btn-submit:hover { background-color: #0052a3; }
+    #message { text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px; }
+  </style>
 </head>
 <body>
-    <div class="box">
-        <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
-        <p class="sub">Student Result Checking Portal</p>
 
-        <!-- Mode Buttons -->
-        <div class="tabs">
-            <button type="button" id="tabStudent" onclick="switchMode('student')">🎓 Student</button>
-            <button type="button" id="tabAdmin" onclick="switchMode('admin')">🔑 Admin</button>
-        </div>
-
-        <!-- Student Login -->
-        <form id="formStudent" onsubmit="goStudent(event)">
-            <div class="field">
-                <label>Matriculation / Reg Number</label>
-                <input type="text" placeholder="e.g. NS/SE/22/1234" required>
-            </div>
-            <div class="field">
-                <label>Password / PIN</label>
-                <input type="password" placeholder="Enter password" required>
-            </div>
-            <div class="field">
-                <label>Academic Session</label>
-                <select>
-                    <option>2025/2026 Academic Session</option>
-                    <option>2024/2025 Academic Session</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>Semester</label>
-                <select>
-                    <option>First Semester</option>
-                    <option>Second Semester</option>
-                </select>
-            </div>
-            <button type="submit" class="btn-submit btn-blue">Check Result</button>
-        </form>
-
-        <!-- Admin Login -->
-        <form id="formAdmin" style="display: none;" onsubmit="goAdmin(event)">
-            <div class="field">
-                <label>Admin Username</label>
-                <input type="text" placeholder="Enter admin username" required>
-            </div>
-            <div class="field">
-                <label>Admin Password</label>
-                <input type="password" placeholder="Enter admin password" required>
-            </div>
-            <button type="submit" class="btn-submit btn-black">Login as Admin</button>
-        </form>
+  <div class="card">
+    <div class="header">
+      <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+      <p>Student Result Checking Portal</p>
     </div>
 
-    <script>
-        function switchMode(mode) {
-            const fStudent = document.getElementById('formStudent');
-            const fAdmin = document.getElementById('formAdmin');
-            const tStudent = document.getElementById('tabStudent');
-            const tAdmin = document.getElementById('tabAdmin');
+    <!-- Mode Tabs -->
+    <div class="tab-container">
+      <button class="tab-btn active" id="studentTab">🎓 Student</button>
+      <button class="tab-btn inactive" id="adminTab">🔑 Admin</button>
+    </div>
 
-            if (mode === 'student') {
-                fStudent.style.display = 'block';
-                fAdmin.style.display = 'none';
-                tStudent.style.backgroundColor = '#0066cc';
-                tStudent.style.color = '#ffffff';
-                tAdmin.style.backgroundColor = '#e0e0e0';
-                tAdmin.style.color = '#333333';
-            } else {
-                fStudent.style.display = 'none';
-                fAdmin.style.display = 'block';
-                tAdmin.style.backgroundColor = '#000000';
-                tAdmin.style.color = '#ffffff';
-                tStudent.style.backgroundColor = '#e0e0e0';
-                tStudent.style.color = '#333333';
-            }
-        }
+    <!-- Student Login Form -->
+    <form id="studentLoginForm">
+      <div class="form-group">
+        <label for="matricNumber">Matriculation / Reg Number</label>
+        <input type="text" id="matricNumber" placeholder="e.g. NS/SE/22/1234" required>
+      </div>
 
-        function goStudent(e) {
-            e.preventDefault();
-            window.location.href = 'dashboard.html';
-        }
+      <div class="form-group">
+        <label for="password">Password / PIN</label>
+        <input type="password" id="password" placeholder="Enter password" required>
+      </div>
 
-        function goAdmin(e) {
-            e.preventDefault();
-            window.location.href = 'admin.html';
+      <!-- Academic Session Dropdown (Populated dynamically from 2015) -->
+      <div class="form-group">
+        <label for="sessionSelect">Academic Session</label>
+        <select id="sessionSelect" required>
+          <option value="">-- Select Session --</option>
+        </select>
+      </div>
+
+      <!-- Semester Dropdown -->
+      <div class="form-group">
+        <label for="semesterSelect">Semester</label>
+        <select id="semesterSelect" required>
+          <option value="">-- Select Semester --</option>
+          <option value="First Semester">First Semester</option>
+          <option value="Second Semester">Second Semester</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Check Result</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const sessionSelect = document.getElementById('sessionSelect');
+
+    // Automatically generate options starting from 2015/2016 up to 2026/2027
+    function loadSessions() {
+      const startYear = 2015;
+      const currentYear = 2026; 
+
+      for (let yr = startYear; yr <= currentYear; yr++) {
+        const option = document.createElement('option');
+        const sessionVal = `${yr}/${yr + 1}`;
+        option.value = sessionVal;
+        option.textContent = `${sessionVal} Academic Session`;
+        
+        // Auto-select latest session by default
+        if (yr === currentYear - 1) {
+          option.selected = true;
         }
-    </script>
+        
+        sessionSelect.appendChild(option);
+      }
+    }
+
+    // Initialize session options on page load
+    loadSessions();
+
+    // Tab Navigation
+    document.getElementById('adminTab').addEventListener('click', () => {
+      window.location.href = '/admin.html';
+    });
+
+    // Handle Student Result Search Submit
+    document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const messageDiv = document.getElementById('message');
+      messageDiv.style.color = '#0066cc';
+      messageDiv.textContent = 'Fetching result...';
+
+      const matricNumber = document.getElementById('matricNumber').value.trim();
+      const password = document.getElementById('password').value;
+      const session = sessionSelect.value;
+      const semester = document.getElementById('semesterSelect').value;
+
+      try {
+        const res = await fetch('/api/get-result', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matricNumber, password, session, semester })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Store result in local session and redirect to view page
+          sessionStorage.setItem('studentResult', JSON.stringify(data));
+          window.location.href = '/result.html';
+        } else {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.message || 'No result found for selected session/semester.';
+        }
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Server connection failed.';
+      }
+    });
+  </script>
+
 </body>
 </html>
