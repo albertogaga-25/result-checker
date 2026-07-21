@@ -1,52 +1,42 @@
-const { MongoClient } = require("mongodb");
-const bcrypt = require("bcryptjs");
-
-const uri = process.env.MONGODB_URI;
+const { connectToDatabase } = require('./db');
 
 exports.handler = async (event) => {
-    if (event.httpMethod !== "POST") {
-        return { statusCode: 405, body: JSON.stringify({ message: "Method not allowed" }) };
+  if (event.httpMethod !== 'POST') {
+    return { 
+      statusCode: 405, 
+      body: JSON.stringify({ error: 'Method Not Allowed' }) 
+    };
+  }
+
+  try {
+    const { username, password } = JSON.parse(event.body || '{}');
+
+    if (!username || !password) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Username and password required' }),
+      };
     }
 
-    try {
-        const { role, username, password } = JSON.parse(event.body || "{}");
-        
-        // Admin credentials fallback
-        if (role === 'admin' && username === 'admin' && password === 'admin123') {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ success: true, role: 'admin', name: 'System Admin' })
-            };
-        }
+    const { db } = await connectToDatabase();
+    const admin = await db.collection('admins').findOne({ username, password });
 
-        const client = new MongoClient(uri);
-        await client.connect();
-        const db = client.db("mciu_db");
-
-        // Locate student record
-        const student = await db.collection("students").findOne({ matricNumber: username });
-        if (!student) {
-            await client.close();
-            return { statusCode: 401, body: JSON.stringify({ message: "Invalid Matric Number or Password" }) };
-        }
-
-        // Compare encrypted password
-        const match = await bcrypt.compare(password, student.password);
-        await client.close();
-
-        if (!match) {
-            return { statusCode: 401, body: JSON.stringify({ message: "Invalid Matric Number or Password" }) };
-        }
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                success: true,
-                role: 'student',
-                student: { name: student.name, matricNumber: student.matricNumber }
-            })
-        };
-    } catch (err) {
-        return { statusCode: 500, body: JSON.stringify({ message: err.message }) };
+    if (!admin) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: 'Invalid username or password' }),
+      };
     }
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true, message: 'Login successful' }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Server error during login', details: error.message }),
+    };
+  }
 };

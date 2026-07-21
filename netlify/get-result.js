@@ -1,30 +1,48 @@
-const { MongoClient } = require("mongodb");
-const uri = process.env.MONGODB_URI;
+const { connectToDatabase } = require('./db');
 
 exports.handler = async (event) => {
-    const matricNumber = event.queryStringParameters ? event.queryStringParameters.matricNumber : null;
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method Not Allowed' }),
+    };
+  }
 
-    if (!matricNumber) {
-        return { statusCode: 400, body: JSON.stringify({ message: "Matric number required" }) };
+  try {
+    const { regNumber, session, term } = JSON.parse(event.body || '{}');
+
+    if (!regNumber || !session || !term) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Registration number, session, and term are required' }),
+      };
     }
 
-    const client = new MongoClient(uri);
-    try {
-        await client.connect();
-        const db = client.db("mciu_db");
+    const { db } = await connectToDatabase();
+    
+    // Case-insensitive match for regNumber
+    const result = await db.collection('results').findOne({
+      regNumber: { $regex: new RegExp(`^${regNumber}$`, 'i') },
+      session,
+      term,
+    });
 
-        const resultRecord = await db.collection("results").findOne({ studentMatric: matricNumber });
-        await client.close();
-
-        if (!resultRecord) {
-            return { statusCode: 404, body: JSON.stringify({ message: "No result record found." }) };
-        }
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify(resultRecord)
-        };
-    } catch (err) {
-        return { statusCode: 500, body: JSON.stringify({ message: err.message }) };
+    if (!result) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: 'Result not found. Please check your details.' }),
+      };
     }
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true, result }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Server error retrieving result', details: error.message }),
+    };
+  }
 };
