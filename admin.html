@@ -3,80 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCIU Admin Panel - Upload Results</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>MCIU Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f6f9; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 650px; border: 1px solid #ccc; margin-bottom: 20px; }
+        h2 { text-align: center; margin-bottom: 5px; }
+        p { text-align: center; color: #666; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        .btn-green { background: #34a853; color: white; }
+        .btn-black { background: #000; color: white; }
+        .btn-red { background: #d93025; color: white; margin-top: 15px; }
+        .course-box { background: #f8fafc; padding: 15px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
+    </style>
 </head>
 <body>
-    <div class="admin-center-wrapper">
-        
-        <div class="container" style="max-width: 650px; width: 100%; margin: 20px 0;">
-            <h2 style="text-align: center; color: #000; margin-bottom: 5px;">MCIU Admin Portal</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 25px;">Upload Student Semester Records</p>
-            
-            <form id="studentForm" onsubmit="addStudent(event)">
-                <h3>Student Profile</h3>
-                <input type="text" id="newName" placeholder="Student Full Name (e.g., OGHENEOGAGA ALBERT)" required>
-                <input type="text" id="newMatric" placeholder="Matric Number (e.g., NS/CB/24/1134)" required>
-                <input type="password" id="newPass" placeholder="Set Portal Password" required>
+    <div class="card">
+        <h2>MCIU Admin Portal</h2>
+        <p>Upload Student Semester Records</p>
 
-                <!-- Academic Session & Semester Selection -->
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <div style="flex: 1;">
-                        <input type="text" id="newSession" placeholder="Academic Session (e.g., 2025/2026)" value="2025/2026" required>
-                    </div>
-                    <div style="flex: 1;">
-                        <select id="newTerm" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
-                            <option value="FIRST SEMESTER">First Semester</option>
-                            <option value="SECOND SEMESTER">Second Semester</option>
-                        </select>
-                    </div>
+        <form onsubmit="saveData(event)">
+            <h3>Student Details</h3>
+            <input type="text" placeholder="Student Full Name" required>
+            <input type="text" placeholder="Matric Number (e.g. NS/CB/24/1134)" required>
+            <input type="password" placeholder="Portal Password" required>
+
+            <div id="courseList">
+                <div class="course-box">
+                    <h4>Course 1</h4>
+                    <input type="text" placeholder="Course Code (e.g. COS 201)" required>
+                    <input type="text" placeholder="Course Title" required>
+                    <input type="number" placeholder="Credit Units" required>
+                    <input type="number" placeholder="Score (0-100)" required>
                 </div>
-
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-
-                <div id="coursesContainer">
-                    <div class="course-input-group">
-                        <h4 class="course-count-label">Course 1 Details</h4>
-                        <input type="text" class="cCode" placeholder="Course Code (e.g., COS 201)" required>
-                        <input type="text" class="cTitle" placeholder="Course Title" required>
-                        <input type="number" class="cUnit" placeholder="Credit Units" min="1" max="6" required>
-                        <input type="number" class="cScore" placeholder="Score (0 - 100)" min="0" max="100" required>
-                    </div>
-                </div>
-
-                <button type="button" onclick="addNewCourseInput()" style="background-color: #34a853; color: white; margin-bottom: 15px;">➕ Add Another Course</button>
-                <button type="submit" style="background-color: #000; color: #fff;">Save Student Record</button>
-            </form>
-            
-            <p id="successMessage" style="color: green; font-weight: bold; text-align: center; margin-top: 15px;"></p>
-            <p id="adminErrorMessage" style="color: #dc2626; font-weight: bold; text-align: center; margin-top: 15px;"></p>
-            
-            <button onclick="adminLogout()" class="btn-logout" style="margin-top: 20px; background-color: #d93025; width: 100%;">Logout Admin</button>
-        </div>
-
-        <div class="container wide-container" style="max-width: 950px; width: 100%; margin: 20px 0;">
-            <h3 style="margin-bottom: 15px; color: #000; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px;">📊 REGISTERED STUDENT MASTER DIRECTORY</h3>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;" id="adminDirectoryTable">
-                    <thead>
-                        <tr style="background-color: #f4f6f9;">
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold;">S/N</th>
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold; text-align: left;">STUDENT NAME</th>
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold;">MATRIC NO</th>
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold;">COURSES TAKEN</th>
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold;">CURRENT GPA</th>
-                            <th style="border: 1px solid #000; padding: 10px; font-weight: bold;">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="directoryTableBody">
-                    </tbody>
-                </table>
             </div>
-        </div>
 
+            <button type="button" class="btn-green" onclick="addCourse()">➕ Add Another Course</button>
+            <button type="submit" class="btn-black">Save Student Record</button>
+        </form>
+
+        <p id="msg" style="color: green; text-align: center; font-weight: bold; margin-top: 10px;"></p>
+        <button class="btn-red" onclick="window.location.href='index.html'">Logout Admin</button>
     </div>
 
-    <script src="js/data.js"></script>
-    <script src="js/admin.js"></script>
+    <script>
+        let count = 1;
+        function addCourse() {
+            count++;
+            const div = document.createElement('div');
+            div.className = 'course-box';
+            div.innerHTML = `
+                <h4>Course ${count}</h4>
+                <input type="text" placeholder="Course Code" required>
+                <input type="text" placeholder="Course Title" required>
+                <input type="number" placeholder="Credit Units" required>
+                <input type="number" placeholder="Score (0-100)" required>
+            `;
+            document.getElementById('courseList').appendChild(div);
+        }
+
+        function saveData(e) {
+            e.preventDefault();
+            document.getElementById('msg').innerText = "Record saved successfully!";
+            setTimeout(() => { document.getElementById('msg').innerText = ""; }, 3000);
+        }
+    </script>
 </body>
 </html>

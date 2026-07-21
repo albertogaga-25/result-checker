@@ -5,239 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Michael and Cecilia Ibru University - Portal Login</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body.login-body {
-            background-color: #f4f6f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .login-container {
-            max-width: 480px;
-            width: 100%;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 1px solid #e1e8ed;
-        }
-        .logo-header h2 {
-            color: #0066cc;
-            font-size: 20px;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .logo-header p {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .role-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        .role-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        #btnStudentRole {
-            background-color: #0066cc;
-            color: #ffffff;
-        }
-        #btnAdminRole {
-            background-color: #e2e8f0;
-            color: #334155;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #0066cc;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            color: #ffffff;
-        }
-        .btn-student {
-            background-color: #0066cc;
-        }
-        .btn-admin {
-            background-color: #0f172a;
-        }
-        #loginErrorMessage {
-            color: #dc2626;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .box { width: 100%; max-width: 450px; background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #ccc; }
+        h2 { color: #0066cc; text-align: center; font-size: 18px; margin-bottom: 5px; }
+        p.sub { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tabs button { flex: 1; padding: 10px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        #tabStudent { background: #0066cc; color: white; }
+        #tabAdmin { background: #e0e0e0; color: #333; }
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .field input, .field select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-submit { width: 100%; padding: 12px; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
+        .btn-blue { background: #0066cc; }
+        .btn-black { background: #000; }
     </style>
-    <script>
-        // Toggle view between Student & Admin
-        function showRole(role) {
-            const studentForm = document.getElementById('studentLoginForm');
-            const adminForm = document.getElementById('adminLoginForm');
-            const btnStudent = document.getElementById('btnStudentRole');
-            const btnAdmin = document.getElementById('btnAdminRole');
-            const errorMsg = document.getElementById('loginErrorMessage');
-
-            if (errorMsg) errorMsg.innerText = '';
-
-            if (role === 'student') {
-                studentForm.style.display = 'block';
-                adminForm.style.display = 'none';
-                btnStudent.style.backgroundColor = '#0066cc';
-                btnStudent.style.color = '#ffffff';
-                btnAdmin.style.backgroundColor = '#e2e8f0';
-                btnAdmin.style.color = '#334155';
-            } else {
-                studentForm.style.display = 'none';
-                adminForm.style.display = 'block';
-                btnAdmin.style.backgroundColor = '#0f172a';
-                btnAdmin.style.color = '#ffffff';
-                btnStudent.style.backgroundColor = '#e2e8f0';
-                btnStudent.style.color = '#334155';
-            }
-        }
-    </script>
 </head>
-<body class="login-body">
-    <div class="login-container">
-        <div class="logo-header">
-            <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
-            <p>Student Result Checking Portal</p>
+<body>
+    <div class="box">
+        <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+        <p class="sub">Student Result Checking Portal</p>
+
+        <!-- Mode Buttons -->
+        <div class="tabs">
+            <button type="button" id="tabStudent" onclick="switchMode('student')">🎓 Student</button>
+            <button type="button" id="tabAdmin" onclick="switchMode('admin')">🔑 Admin</button>
         </div>
 
-        <!-- Role Toggle Buttons -->
-        <div class="role-selector">
-            <button type="button" id="btnStudentRole" class="role-btn" onclick="showRole('student')">
-                🎓 Student
-            </button>
-            <button type="button" id="btnAdminRole" class="role-btn" onclick="showRole('admin')">
-                🔑 Admin
-            </button>
-        </div>
-
-        <!-- STUDENT LOGIN FORM -->
-        <form id="studentLoginForm">
-            <div class="form-group">
-                <label for="loginMatric">Matriculation / Reg Number</label>
-                <input type="text" id="loginMatric" placeholder="e.g. NS/SE/22/1234" required>
+        <!-- Student Login -->
+        <form id="formStudent" onsubmit="goStudent(event)">
+            <div class="field">
+                <label>Matriculation / Reg Number</label>
+                <input type="text" placeholder="e.g. NS/SE/22/1234" required>
             </div>
-
-            <div class="form-group">
-                <label for="loginPassword">Password / PIN</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <div class="field">
+                <label>Password / PIN</label>
+                <input type="password" placeholder="Enter password" required>
             </div>
-
-            <div class="form-group">
-                <label for="loginSession">Academic Session</label>
-                <select id="loginSession" required>
-                    <option value="2025/2026" selected>2025/2026 Academic Session</option>
-                    <option value="2024/2025">2024/2025 Academic Session</option>
-                    <option value="2023/2024">2023/2024 Academic Session</option>
+            <div class="field">
+                <label>Academic Session</label>
+                <select>
+                    <option>2025/2026 Academic Session</option>
+                    <option>2024/2025 Academic Session</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label for="loginTerm">Semester</label>
-                <select id="loginTerm" required>
-                    <option value="FIRST SEMESTER">First Semester</option>
-                    <option value="SECOND SEMESTER">Second Semester</option>
+            <div class="field">
+                <label>Semester</label>
+                <select>
+                    <option>First Semester</option>
+                    <option>Second Semester</option>
                 </select>
             </div>
-
-            <button type="submit" class="btn-submit btn-student">Check Result</button>
+            <button type="submit" class="btn-submit btn-blue">Check Result</button>
         </form>
 
-        <!-- ADMIN LOGIN FORM -->
-        <form id="adminLoginForm" style="display: none;">
-            <div class="form-group">
-                <label for="adminUsername">Admin Username</label>
-                <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+        <!-- Admin Login -->
+        <form id="formAdmin" style="display: none;" onsubmit="goAdmin(event)">
+            <div class="field">
+                <label>Admin Username</label>
+                <input type="text" placeholder="Enter admin username" required>
             </div>
-
-            <div class="form-group">
-                <label for="adminPassword">Admin Password</label>
-                <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+            <div class="field">
+                <label>Admin Password</label>
+                <input type="password" placeholder="Enter admin password" required>
             </div>
-
-            <button type="submit" class="btn-submit btn-admin">Login as Admin</button>
+            <button type="submit" class="btn-submit btn-black">Login as Admin</button>
         </form>
-
-        <p id="loginErrorMessage"></p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Handle Student Form Submission
-            const studentForm = document.getElementById('studentLoginForm');
-            if (studentForm) {
-                studentForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const regNumber = document.getElementById('loginMatric').value.trim();
-                    const session = document.getElementById('loginSession').value;
-                    const term = document.getElementById('loginTerm').value;
+        function switchMode(mode) {
+            const fStudent = document.getElementById('formStudent');
+            const fAdmin = document.getElementById('formAdmin');
+            const tStudent = document.getElementById('tabStudent');
+            const tAdmin = document.getElementById('tabAdmin');
 
-                    // Save session state locally so dashboard loads immediately
-                    const studentSessionData = {
-                        regNumber: regNumber,
-                        selectedSession: session,
-                        selectedTerm: term
-                    };
-                    localStorage.setItem('currentStudent', JSON.stringify(studentSessionData));
-                    window.location.href = 'dashboard.html';
-                });
+            if (mode === 'student') {
+                fStudent.style.display = 'block';
+                fAdmin.style.display = 'none';
+                tStudent.style.backgroundColor = '#0066cc';
+                tStudent.style.color = '#ffffff';
+                tAdmin.style.backgroundColor = '#e0e0e0';
+                tAdmin.style.color = '#333333';
+            } else {
+                fStudent.style.display = 'none';
+                fAdmin.style.display = 'block';
+                tAdmin.style.backgroundColor = '#000000';
+                tAdmin.style.color = '#ffffff';
+                tStudent.style.backgroundColor = '#e0e0e0';
+                tStudent.style.color = '#333333';
             }
+        }
 
-            // 2. Handle Admin Form Submission
-            const adminForm = document.getElementById('adminLoginForm');
-            if (adminForm) {
-                adminForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    // Set admin authentication token locally so admin.html grants access
-                    localStorage.setItem('adminToken', 'logged_in');
-                    window.location.href = 'admin.html';
-                });
-            }
-        });
+        function goStudent(e) {
+            e.preventDefault();
+            window.location.href = 'dashboard.html';
+        }
+
+        function goAdmin(e) {
+            e.preventDefault();
+            window.location.href = 'admin.html';
+        }
     </script>
 </body>
 </html>
