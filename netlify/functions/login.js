@@ -9,34 +9,58 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { username, password } = JSON.parse(event.body || '{}');
+    const { role, username, password } = JSON.parse(event.body || '{}');
 
     if (!username || !password) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Username and password required' }),
+        body: JSON.stringify({ message: 'Username and password required' }),
       };
     }
 
     const { db } = await connectToDatabase();
-    const admin = await db.collection('admins').findOne({ username, password });
 
-    if (!admin) {
+    // --- ADMIN LOGIN ---
+    if (role === 'admin') {
+      const admin = await db.collection('admins').findOne({ username, password });
+
+      if (!admin) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({ message: 'Invalid admin credentials' }),
+        };
+      }
+
       return {
-        statusCode: 401,
-        body: JSON.stringify({ error: 'Invalid username or password' }),
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: true, role: 'admin' }),
+      };
+    } 
+    
+    // --- STUDENT LOGIN ---
+    else {
+      // Matches 'username' from form to 'regNumber' in MongoDB
+      const student = await db.collection('students').findOne({ regNumber: username, password });
+
+      if (!student) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({ message: 'Invalid registration number or password' }),
+        };
+      }
+
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: true, role: 'student', student }),
       };
     }
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true, message: 'Login successful' }),
-    };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Server error during login', details: error.message }),
+      body: JSON.stringify({ message: 'Server error during login', details: error.message }),
     };
   }
 };
