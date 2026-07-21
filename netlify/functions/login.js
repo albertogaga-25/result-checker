@@ -1,24 +1,44 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // If student is already logged in, redirect directly to dashboard
-    const currentStudent = localStorage.getItem('currentStudent');
-    if (currentStudent) {
-        window.location.href = 'dashboard.html';
-        return;
-    }
-
-    const loginForm = document.getElementById('loginForm');
+function switchRole(role) {
+    const studentForm = document.getElementById('studentLoginForm');
+    const adminForm = document.getElementById('adminLoginForm');
+    const btnStudent = document.getElementById('btnStudentRole');
+    const btnAdmin = document.getElementById('btnAdminRole');
     const errorMsg = document.getElementById('loginErrorMessage');
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+    if (errorMsg) errorMsg.innerText = '';
+
+    if (role === 'student') {
+        studentForm.style.display = 'block';
+        adminForm.style.display = 'none';
+        btnStudent.style.backgroundColor = '#0066cc';
+        btnStudent.style.color = '#ffffff';
+        btnAdmin.style.backgroundColor = '#e0e0e0';
+        btnAdmin.style.color = '#333333';
+    } else if (role === 'admin') {
+        studentForm.style.display = 'none';
+        adminForm.style.display = 'block';
+        btnAdmin.style.backgroundColor = '#000000';
+        btnAdmin.style.color = '#ffffff';
+        btnStudent.style.backgroundColor = '#e0e0e0';
+        btnStudent.style.color = '#333333';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const studentForm = document.getElementById('studentLoginForm');
+    const adminForm = document.getElementById('adminLoginForm');
+    const errorMsg = document.getElementById('loginErrorMessage');
+
+    // Handle Student Submit
+    if (studentForm) {
+        studentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (errorMsg) errorMsg.innerText = '';
 
             const regNumber = document.getElementById('loginMatric').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             const session = document.getElementById('loginSession').value;
             const term = document.getElementById('loginTerm').value;
-
-            if (errorMsg) errorMsg.innerText = '';
 
             try {
                 const response = await fetch('/api/login', {
@@ -30,28 +50,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Save student info along with selected session & term
-                    const studentSessionData = {
+                    const studentData = {
                         ...(data.student || { regNumber }),
                         regNumber: regNumber,
                         selectedSession: session,
                         selectedTerm: term
                     };
-
-                    localStorage.setItem('currentStudent', JSON.stringify(studentSessionData));
-                    
-                    // Redirect to dashboard
+                    localStorage.setItem('currentStudent', JSON.stringify(studentData));
                     window.location.href = 'dashboard.html';
                 } else {
-                    if (errorMsg) {
-                        errorMsg.innerText = data.message || data.error || 'Invalid Matric Number, Password, or Session';
-                    }
+                    if (errorMsg) errorMsg.innerText = data.message || data.error || 'Invalid Student Credentials';
                 }
             } catch (err) {
                 console.error('Login error:', err);
-                if (errorMsg) {
-                    errorMsg.innerText = 'Unable to connect to server. Please try again.';
+                if (errorMsg) errorMsg.innerText = 'Unable to connect to server.';
+            }
+        });
+    }
+
+    // Handle Admin Submit
+    if (adminForm) {
+        adminForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (errorMsg) errorMsg.innerText = '';
+
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+
+            try {
+                const response = await fetch('/api/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('adminToken', data.token || 'logged_in');
+                    window.location.href = 'admin.html';
+                } else {
+                    if (errorMsg) errorMsg.innerText = data.message || data.error || 'Invalid Admin Credentials';
                 }
+            } catch (err) {
+                console.error('Admin Login error:', err);
+                if (errorMsg) errorMsg.innerText = 'Unable to connect to server.';
             }
         });
     }
