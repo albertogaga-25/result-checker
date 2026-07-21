@@ -104,3 +104,13 @@ function calculateGPA(courses) {
     const totalPoints = calculateTotalPoints(courses);
     return (totalPoints / totalUnits).toFixed(2);
 }
+
+// Logout function
+function logout() {
+    // Clear student session data
+    localStorage.removeItem('currentStudent');
+    localStorage.clear(); // Clears everything just to be safe
+
+    // Redirect back to login page
+    window.location.href = 'index.html';
+}
