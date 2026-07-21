@@ -46,6 +46,17 @@
   </div>
 
   <script>
+    // Function to calculate Grade Points based on Score (5.0 Scale)
+    function getGradePoint(score) {
+      const s = Number(score);
+      if (s >= 70) return 5;
+      if (s >= 60) return 4;
+      if (s >= 50) return 3;
+      if (s >= 45) return 2;
+      if (s >= 40) return 1;
+      return 0;
+    }
+
     const storedData = sessionStorage.getItem('studentResult');
     const resultContainer = document.getElementById('resultContainer');
 
@@ -53,27 +64,51 @@
       try {
         const result = JSON.parse(storedData);
         
-        // Ensure courses array exists
-        const courses = Array.isArray(result.courses) ? result.courses : (result.courseCode ? [result] : []);
+        // Find course list array or single course object
+        const courses = Array.isArray(result.courses) && result.courses.length > 0 
+          ? result.courses 
+          : (result.courseCode || result.code ? [result] : []);
 
+        let totalUnits = 0;
+        let totalQualityPoints = 0;
         let rowsHtml = '';
+
         if (courses.length > 0) {
-          rowsHtml = courses.map((c, i) => `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${c.courseCode || c.code || 'N/A'}</td>
-              <td class="left-align">${c.courseTitle || c.title || c.code || 'N/A'}</td>
-              <td>${c.creditUnit || c.unit || c.units || 'N/A'}</td>
-              <td>${c.score !== undefined ? c.score : 'N/A'}</td>
-            </tr>
-          `).join('');
+          rowsHtml = courses.map((c, i) => {
+            const unit = Number(c.creditUnit || c.unit || c.units || 0);
+            const score = Number(c.score || 0);
+            const gradePoint = getGradePoint(score);
+            
+            totalUnits += unit;
+            totalQualityPoints += (unit * gradePoint);
+
+            return `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${c.courseCode || c.code || 'N/A'}</td>
+                <td class="left-align">${c.courseTitle || c.title || c.code || 'N/A'}</td>
+                <td>${unit}</td>
+                <td>${score}</td>
+              </tr>
+            `;
+          }).join('');
         } else {
-          rowsHtml = `<tr><td colspan="5">No courses found for this student.</td></tr>`;
+          rowsHtml = `<tr><td colspan="5">No course records attached to this result.</td></tr>`;
         }
+
+        // Calculate GPA automatically
+        const calculatedGPA = totalUnits > 0 ? (totalQualityPoints / totalUnits).toFixed(2) : '0.00';
+        
+        // Display GPA & CGPA (Uses DB value if provided, else calculated GPA)
+        const displayGPA = result.gpa !== undefined && result.gpa !== null ? result.gpa : calculatedGPA;
+        const displayCGPA = result.cgpa !== undefined && result.cgpa !== null ? result.cgpa : displayGPA;
+
+        // Extract student name dynamically across multiple common DB key names
+        const studentFullName = result.studentName || result.fullName || result.name || result.student_name || 'Student';
 
         resultContainer.innerHTML = `
           <div class="student-details">
-            <div><strong>Student Full Name:</strong> ${result.studentName || result.name || 'N/A'}</div>
+            <div><strong>Student Full Name:</strong> ${studentFullName}</div>
             <div><strong>Matric Number:</strong> ${result.matricNumber || 'N/A'}</div>
             <div><strong>Academic Session:</strong> ${result.session || 'N/A'}</div>
             <div><strong>Semester:</strong> ${result.semester || 'N/A'}</div>
@@ -95,15 +130,15 @@
           </table>
 
           <div class="summary-section">
-            <span>GPA: ${result.gpa !== undefined ? result.gpa : 'N/A'}</span>
-            <span>CGPA: ${result.cgpa !== undefined ? result.cgpa : 'N/A'}</span>
+            <span>GPA: ${displayGPA}</span>
+            <span>CGPA: ${displayCGPA}</span>
           </div>
 
           <button class="btn-action" onclick="window.print()">🖨️ Print Result Sheet</button>
           <a href="/index.html" class="btn-action">Logout Portal</a>
         `;
       } catch (e) {
-        resultContainer.innerHTML = `<p style="color:red; text-align:center;">Error displaying result.</p>`;
+        resultContainer.innerHTML = `<p style="color:red; text-align:center;">Error parsing result payload.</p>`;
       }
     } else {
       resultContainer.innerHTML = `<p style="color:red; text-align:center;">No active session found. Please login from the main portal.</p>`;
