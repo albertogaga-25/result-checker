@@ -1,49 +1,35 @@
 import { MongoClient } from 'mongodb';
 
-const uri = process.env.MONGODB_URI; // Your MongoDB Connection String
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
+  const uri = process.env.MONGODB_URI;
   if (!uri) {
-    return res.status(500).json({ message: 'MongoDB connection string missing in Environment Variables.' });
+    return res.status(500).json({ message: 'MongoDB connection string (MONGODB_URI) is missing.' });
   }
 
+  let client;
   try {
-    const client = new MongoClient(uri);
+    client = new MongoClient(uri);
     await client.connect();
-    const db = client.db('mciu_portal'); // DB Name
-    const resultsCollection = db.collection('results');
+    const db = client.db('mciu_portal');
+    const collection = db.collection('results');
 
-    const { fullName, matricNumber, portalPassword, session, semester, courses } = req.body;
+    const data = req.body;
 
-    if (!matricNumber || !courses) {
-      return res.status(400).json({ message: 'Missing required student fields.' });
-    }
-
-    // Save or update the record in MongoDB
-    await resultsCollection.updateOne(
-      { matricNumber: matricNumber, session: session, semester: semester },
-      { 
-        $set: { 
-          fullName, 
-          portalPassword, 
-          session, 
-          semester, 
-          courses, 
-          updatedAt: new Date() 
-        } 
-      },
+    await collection.updateOne(
+      { matricNumber: data.matricNumber, session: data.session, semester: data.semester },
+      { $set: { ...data, updatedAt: new Date() } },
       { upsert: true }
     );
 
-    await client.close();
-    return res.status(200).json({ message: 'Record saved successfully!' });
-
+    return res.status(200).json({ message: 'Student record saved successfully!' });
   } catch (error) {
-    console.error('Database error:', error);
-    return res.status(500).json({ message: 'Failed to save to database: ' + error.message });
+    console.error('Error saving record:', error);
+    return res.status(500).json({ message: error.message || 'Database error occurred.' });
+  } finally {
+    if (client) await client.close();
   }
 }
