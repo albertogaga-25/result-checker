@@ -18,11 +18,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             `/api/get-result?regNumber=${encodeURIComponent(regNumber)}&matricNumber=${encodeURIComponent(regNumber)}`
         );
         const data = await response.json();
+        console.log("Fetched Result Data:", data); // Check browser console for this output!
 
         if (response.ok) {
-            // Unpack courses whether returned as top-level or wrapped inside data.result
-            const resultData = data.result || data;
-            const courses = resultData.courses || resultData.subjects || [];
+            // Support all nested structures
+            let resultData = data.result || data;
+            if (Array.isArray(resultData)) {
+                resultData = resultData[0] || {};
+            }
+
+            const courses = resultData.courses || resultData.subjects || data.courses || [];
 
             const tableBody = document.getElementById('resultsTableBody');
             if (tableBody) {
@@ -36,12 +41,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     tableBody.innerHTML += `
                         <tr>
-                            <td>${index + 1}</td>
+                            <td style="text-align: center;">${index + 1}</td>
                             <td>${c.code || c.courseCode || ''} - ${c.title || c.courseTitle || ''}</td>
-                            <td>${unit}</td>
+                            <td style="text-align: center;">${unit}</td>
                             <td style="text-align: center;">${score}</td>
                             <td style="text-align: center;">${grade}</td>
-                            <td>${qualityPoint}</td>
+                            <td style="text-align: center;">${qualityPoint}</td>
                         </tr>
                     `;
                 });
