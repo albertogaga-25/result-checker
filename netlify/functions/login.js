@@ -9,12 +9,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { role, username, regNumber, password } = JSON.parse(event.body || '{}');
-    
-    // Accepts either 'username' or 'regNumber' from the frontend
-    const userIdentifier = username || regNumber;
+    const { role, username, password } = JSON.parse(event.body || '{}');
 
-    if (!userIdentifier || !password) {
+    // Clean up input by removing accidental leading/trailing spaces
+    const cleanUsername = username ? username.trim() : '';
+    const cleanPassword = password ? password.trim() : '';
+
+    if (!cleanUsername || !cleanPassword) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: 'Username and password required' }),
@@ -25,9 +26,13 @@ exports.handler = async (event) => {
 
     // --- ADMIN LOGIN ---
     if (role === 'admin') {
-      const admin = await db.collection('admins').findOne({ username: userIdentifier, password });
+      const admin = await db.collection('admins').findOne({ 
+        username: cleanUsername, 
+        password: cleanPassword 
+      });
 
       if (!admin) {
+        console.log(`Failed admin login attempt for username: "${cleanUsername}"`);
         return {
           statusCode: 401,
           body: JSON.stringify({ message: 'Invalid admin credentials' }),
@@ -43,9 +48,13 @@ exports.handler = async (event) => {
     
     // --- STUDENT LOGIN ---
     else {
-      const student = await db.collection('students').findOne({ regNumber: userIdentifier, password });
+      const student = await db.collection('students').findOne({ 
+        regNumber: cleanUsername, 
+        password: cleanPassword 
+      });
 
       if (!student) {
+        console.log(`Failed student login attempt for regNumber: "${cleanUsername}"`);
         return {
           statusCode: 401,
           body: JSON.stringify({ message: 'Invalid registration number or password' }),
@@ -60,6 +69,7 @@ exports.handler = async (event) => {
     }
 
   } catch (error) {
+    console.error("Database connection or login error:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Server error during login', details: error.message }),
