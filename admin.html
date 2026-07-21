@@ -8,13 +8,19 @@
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: #f4f6f9; display: flex; justify-content: center; padding: 20px; margin: 0; }
     .container { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-    h2, h4 { text-align: center; color: #333; margin-top: 0; }
+    h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 5px; }
     .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
     .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #222; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #444; }
     input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; outline: none; }
     input:focus, select:focus { border-color: #007bff; }
+    
+    /* Flex layout for Session input and + button */
+    .inline-input-group { display: flex; gap: 8px; }
+    .btn-inline-add { width: 45px; height: 45px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 20px; font-weight: bold; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .btn-inline-add:hover { background-color: #0056b3; }
+
     .course-card { background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
     .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
     .btn-add { background-color: #28a745; color: white; }
@@ -49,14 +55,15 @@
         <input type="password" id="portalPassword" placeholder="Portal Password" required>
       </div>
 
-      <!-- Session Dropdown -->
+      <!-- Academic Session Dropdown with + Button -->
       <div class="form-group">
         <label for="sessionSelect">Academic Session</label>
-        <select id="sessionSelect" required>
-          <option value="">-- Select Session --</option>
-          <option value="2024/2025">2024/2025 Academic Session</option>
-          <option value="2025/2026">2025/2026 Academic Session</option>
-        </select>
+        <div class="inline-input-group">
+          <select id="sessionSelect" required>
+            <option value="">-- Select Session --</option>
+          </select>
+          <button type="button" class="btn-inline-add" id="addSessionBtn" title="Add Next Session">+</button>
+        </div>
       </div>
 
       <!-- Semester Dropdown -->
@@ -99,9 +106,40 @@
   </div>
 
   <script>
-    let courseCount = 1;
+    const sessionSelect = document.getElementById('sessionSelect');
+    let lastStartYear = 2015;
+
+    // Populate Sessions starting from 2015/2016 up to 2026/2027
+    function initSessions() {
+      const currentYear = 2026;
+      for (let year = 2015; year <= currentYear; year++) {
+        addSessionOption(year);
+      }
+    }
+
+    // Helper to add session option to dropdown
+    function addSessionOption(startYear) {
+      const endYear = startYear + 1;
+      const sessionText = `${startYear}/${endYear} Academic Session`;
+      const option = document.createElement('option');
+      option.value = `${startYear}/${endYear}`;
+      option.textContent = sessionText;
+      sessionSelect.appendChild(option);
+      lastStartYear = startYear;
+    }
+
+    // Handle '+' button to append the next session year automatically
+    document.getElementById('addSessionBtn').addEventListener('click', () => {
+      const nextStartYear = lastStartYear + 1;
+      addSessionOption(nextStartYear);
+      sessionSelect.value = `${nextStartYear}/${nextStartYear + 1}`; // Auto-select the newly added session
+    });
+
+    // Initialize session options on load
+    initSessions();
 
     // Dynamically Add New Course Form Block
+    let courseCount = 1;
     document.getElementById('addCourseBtn').addEventListener('click', () => {
       courseCount++;
       const container = document.getElementById('coursesContainer');
@@ -132,14 +170,12 @@
       messageDiv.style.color = '#007bff';
       messageDiv.textContent = 'Saving record...';
 
-      // 1. Gather Student & Session Info
       const fullName = document.getElementById('fullName').value.trim();
       const matricNumber = document.getElementById('matricNumber').value.trim();
       const portalPassword = document.getElementById('portalPassword').value;
-      const session = document.getElementById('sessionSelect').value;
+      const session = sessionSelect.value;
       const semester = document.getElementById('semesterSelect').value;
 
-      // 2. Gather All Courses
       const courseCards = document.querySelectorAll('.course-card');
       const courses = [];
 
@@ -152,15 +188,7 @@
         });
       });
 
-      // 3. Construct Payload
-      const payload = {
-        fullName,
-        matricNumber,
-        portalPassword,
-        session,
-        semester,
-        courses
-      };
+      const payload = { fullName, matricNumber, portalPassword, session, semester, courses };
 
       try {
         const res = await fetch('/api/save-result', {
