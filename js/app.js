@@ -5,57 +5,64 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // Fall back through all possible property names used at login
     const regNumber = student.regNumber || student.matricNumber || student.username;
     const studentName = student.name || student.studentName || 'Student';
 
-    document.getElementById('studentName').innerText = studentName;
-    document.getElementById('studentMatric').innerText = regNumber || '---';
+    const nameElem = document.getElementById('studentName');
+    const matricElem = document.getElementById('studentMatric');
+    if (nameElem) nameElem.innerText = studentName;
+    if (matricElem) matricElem.innerText = regNumber || '---';
 
     try {
-        // Send both query params so your backend function catches whichever it expects
         const response = await fetch(
             `/api/get-result?regNumber=${encodeURIComponent(regNumber)}&matricNumber=${encodeURIComponent(regNumber)}`
         );
-        const result = await response.json();
+        const data = await response.json();
 
         if (response.ok) {
+            // Unpack courses whether returned as top-level or wrapped inside data.result
+            const resultData = data.result || data;
+            const courses = resultData.courses || resultData.subjects || [];
+
             const tableBody = document.getElementById('resultsTableBody');
-            tableBody.innerHTML = '';
+            if (tableBody) {
+                tableBody.innerHTML = '';
 
-            const courses = result.courses || result.subjects || [];
+                courses.forEach((c, index) => {
+                    const score = Number(c.score || 0);
+                    const unit = Number(c.unit || 0);
+                    const grade = c.grade || getGrade(score);
+                    const qualityPoint = c.qualityPoint ?? c.qp ?? calculateQP(score, unit);
 
-            courses.forEach((c, index) => {
-                // Calculate grade / quality points on the fly if backend returns raw scores
-                const score = Number(c.score || 0);
-                const unit = Number(c.unit || 0);
-                const grade = c.grade || getGrade(score);
-                const qualityPoint = c.qualityPoint ?? c.qp ?? calculateQP(score, unit);
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${c.code || c.courseCode || ''} - ${c.title || c.courseTitle || ''}</td>
+                            <td>${unit}</td>
+                            <td style="text-align: center;">${score}</td>
+                            <td style="text-align: center;">${grade}</td>
+                            <td>${qualityPoint}</td>
+                        </tr>
+                    `;
+                });
+            }
 
-                tableBody.innerHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${c.code || ''} - ${c.title || ''}</td>
-                        <td>${unit}</td>
-                        <td style="text-align: center;">${score}</td>
-                        <td style="text-align: center;">${grade}</td>
-                        <td>${qualityPoint}</td>
-                    </tr>
-                `;
-            });
+            const totalUnitsElem = document.getElementById('totalUnits');
+            const totalPointsElem = document.getElementById('totalPoints');
+            const gpaElem = document.getElementById('gpaScore');
 
-            document.getElementById('totalUnits').innerText = result.totalUnits ?? calculateTotalUnits(courses);
-            document.getElementById('totalPoints').innerText = result.totalPoints ?? calculateTotalPoints(courses);
-            document.getElementById('gpaScore').innerText = result.gpa ?? calculateGPA(courses);
+            if (totalUnitsElem) totalUnitsElem.innerText = resultData.totalUnits ?? calculateTotalUnits(courses);
+            if (totalPointsElem) totalPointsElem.innerText = resultData.totalPoints ?? calculateTotalPoints(courses);
+            if (gpaElem) gpaElem.innerText = resultData.gpa ?? calculateGPA(courses);
         } else {
-            console.error("Result fetch error:", result.message || result.error);
+            console.error("Result fetch error:", data.message || data.error);
         }
     } catch (err) {
         console.error("Failed to load result:", err);
     }
 });
 
-// Helper functions in case the backend only sends raw course scores
+// Helper Functions
 function getGrade(score) {
     if (score >= 70) return 'A';
     if (score >= 60) return 'B';
@@ -65,14 +72,17 @@ function getGrade(score) {
     return 'F';
 }
 
+function getGradePoint(score) {
+    if (score >= 70) return 5;
+    if (score >= 60) return 4;
+    if (score >= 50) return 3;
+    if (score >= 45) return 2;
+    if (score >= 40) return 1;
+    return 0;
+}
+
 function calculateQP(score, unit) {
-    let point = 0;
-    if (score >= 70) point = 5;
-    else if (score >= 60) point = 4;
-    else if (score >= 50) point = 3;
-    else if (score >= 45) point = 2;
-    else if (score >= 40) point = 1;
-    return point * unit;
+    return getGradePoint(score) * Number(unit);
 }
 
 function calculateTotalUnits(courses) {
@@ -84,13 +94,8 @@ function calculateTotalPoints(courses) {
 }
 
 function calculateGPA(courses) {
-    const units = calculateTotalUnits(courses);
-    if (units === 0) return '0.00';
-    const points = calculateTotalPoints(courses);
-    return (points / units).toFixed(2);
-}
-
-function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
+    const totalUnits = calculateTotalUnits(courses);
+    if (totalUnits === 0) return '0.00';
+    const totalPoints = calculateTotalPoints(courses);
+    return (totalPoints / totalUnits).toFixed(2);
 }
