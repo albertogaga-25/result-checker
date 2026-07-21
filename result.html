@@ -7,23 +7,25 @@
   <style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-    .card { background: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 850px; border: 1px solid #ccc; }
+    .card { background: #ffffff; padding: 35px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 800px; border: 1px solid #ccc; }
     
-    .student-info { margin-bottom: 20px; line-height: 1.8; }
-    .student-info div { font-weight: bold; font-size: 15px; color: #000; }
+    .header-title { text-align: center; color: #0056b3; margin-bottom: 25px; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+    .header-title h2 { margin: 0; font-size: 20px; }
+    .header-title p { margin: 5px 0 0 0; color: #555; font-size: 14px; }
+
+    .student-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; font-size: 14px; line-height: 1.6; }
+    .student-details div { color: #333; }
+    .student-details strong { color: #000; }
     
     table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-    th, td { border: 1px solid #000; padding: 8px 10px; text-align: center; font-size: 13px; }
+    th, td { border: 1px solid #333; padding: 10px; text-align: center; font-size: 14px; }
     th { background-color: #f8f9fa; font-weight: bold; }
     .left-align { text-align: left; }
-    .bold { font-weight: bold; }
     
-    .gpa-section { text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 25px; }
-    .gpa-value { text-decoration: underline; border-bottom: 2px solid #000; padding-bottom: 2px; }
+    .summary-section { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 25px; background: #f8f9fa; padding: 12px 18px; border: 1px solid #333; border-radius: 5px; }
 
-    .btn-action { display: block; width: 100%; padding: 14px; background-color: #1a73e8; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; margin-bottom: 12px; }
-    .btn-action:hover { background-color: #1557b0; }
-    .btn-secondary { background-color: #1a73e8; }
+    .btn-action { display: block; width: 100%; padding: 12px; background-color: #0066cc; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; margin-bottom: 10px; }
+    .btn-action:hover { background-color: #0052a3; }
     
     @media print {
       body { background-color: #fff; padding: 0; }
@@ -35,6 +37,11 @@
 <body>
 
   <div class="card">
+    <div class="header-title">
+      <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+      <p>Student Academic Result Sheet</p>
+    </div>
+
     <div id="resultContainer">Loading...</div>
   </div>
 
@@ -46,77 +53,60 @@
       try {
         const result = JSON.parse(storedData);
         
-        // Default course list fallback if server returns empty list
-        const courses = result.courses && result.courses.length > 0 ? result.courses : [
-          { code: 'COS 201 - Introduction to Computer Science', unit: 3, score: 50, grade: 'C', qp: 9 },
-          { code: 'CYB 201 - Cybersecurity Fundamentals', unit: 2, score: 76, grade: 'A', qp: 10 },
-          { code: 'CYB 203 - Computer System Architecture', unit: 2, score: 73, grade: 'A', qp: 10 },
-          { code: 'SEN 201 - Introduction to Software Engineering', unit: 2, score: 51, grade: 'C', qp: 6 },
-          { code: 'MCIU-CYB 213 - Network Security I', unit: 2, score: 64, grade: 'B', qp: 8 },
-          { code: 'MCIU-CYB 215 - Information Assurance', unit: 2, score: 70, grade: 'A', qp: 10 }
-        ];
+        // Ensure courses array exists
+        const courses = Array.isArray(result.courses) ? result.courses : (result.courseCode ? [result] : []);
 
-        let totalUnits = 0;
-        let totalQP = 0;
-
-        let rowsHtml = courses.map((c, i) => {
-          totalUnits += Number(c.unit || 0);
-          totalQP += Number(c.qp || 0);
-          return `
+        let rowsHtml = '';
+        if (courses.length > 0) {
+          rowsHtml = courses.map((c, i) => `
             <tr>
               <td>${i + 1}</td>
-              <td class="left-align">${c.code || c.courseTitle}</td>
-              <td>${c.unit}</td>
-              <td>${c.score}</td>
-              <td class="bold">${c.grade}</td>
-              <td>${c.qp}</td>
+              <td>${c.courseCode || c.code || 'N/A'}</td>
+              <td class="left-align">${c.courseTitle || c.title || c.code || 'N/A'}</td>
+              <td>${c.creditUnit || c.unit || c.units || 'N/A'}</td>
+              <td>${c.score !== undefined ? c.score : 'N/A'}</td>
             </tr>
-          `;
-        }).join('');
+          `).join('');
+        } else {
+          rowsHtml = `<tr><td colspan="5">No courses found for this student.</td></tr>`;
+        }
 
         resultContainer.innerHTML = `
-          <div class="student-info">
-            <div>NAME: ${result.studentName || 'NWACHUKWU EMMANUEL CHUKWUEMERIE'}</div>
-            <div>MATRIC NO: ${result.matricNumber || 'NS/CB/24/1134'}</div>
+          <div class="student-details">
+            <div><strong>Student Full Name:</strong> ${result.studentName || result.name || 'N/A'}</div>
+            <div><strong>Matric Number:</strong> ${result.matricNumber || 'N/A'}</div>
+            <div><strong>Academic Session:</strong> ${result.session || 'N/A'}</div>
+            <div><strong>Semester:</strong> ${result.semester || 'N/A'}</div>
           </div>
 
           <table>
             <thead>
               <tr>
-                <th rowspan="2" style="width: 50px;">S/N</th>
-                <th rowspan="2">COURSE CODE & TITLE</th>
-                <th rowspan="2" style="width: 70px;">UNIT</th>
-                <th colspan="2">PERFORMANCE</th>
-                <th rowspan="2" style="width: 70px;">QP</th>
-              </tr>
-              <tr>
-                <th style="width: 90px;">SC (Score)</th>
-                <th style="width: 90px;">GD (Grade)</th>
+                <th style="width: 50px;">S/N</th>
+                <th style="width: 130px;">Course Code</th>
+                <th>Course Title</th>
+                <th style="width: 100px;">Credit Unit</th>
+                <th style="width: 80px;">Score</th>
               </tr>
             </thead>
             <tbody>
               ${rowsHtml}
-              <tr class="bold">
-                <td colspan="2" style="text-align: right; padding-right: 15px;">TOTALS:</td>
-                <td>${totalUnits}</td>
-                <td colspan="2"></td>
-                <td>${totalQP}</td>
-              </tr>
             </tbody>
           </table>
 
-          <div class="gpa-section">
-            B.Sc. PROGRAMME GPA: <span class="gpa-value">${result.gpa || (totalQP / (totalUnits || 1)).toFixed(2)}</span>
+          <div class="summary-section">
+            <span>GPA: ${result.gpa !== undefined ? result.gpa : 'N/A'}</span>
+            <span>CGPA: ${result.cgpa !== undefined ? result.cgpa : 'N/A'}</span>
           </div>
 
           <button class="btn-action" onclick="window.print()">🖨️ Print Result Sheet</button>
-          <a href="/index.html" class="btn-action btn-secondary">Logout Portal</a>
+          <a href="/index.html" class="btn-action">Logout Portal</a>
         `;
       } catch (e) {
-        resultContainer.innerHTML = `<p style="color:red; text-align:center;">Error rendering result format.</p>`;
+        resultContainer.innerHTML = `<p style="color:red; text-align:center;">Error displaying result.</p>`;
       }
     } else {
-      resultContainer.innerHTML = `<p style="color:red; text-align:center;">No session found. Please login again.</p>`;
+      resultContainer.innerHTML = `<p style="color:red; text-align:center;">No active session found. Please login from the main portal.</p>`;
     }
   </script>
 
