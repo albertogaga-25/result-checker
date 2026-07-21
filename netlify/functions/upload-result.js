@@ -10,10 +10,14 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
-    const { regNumber, studentName, password, session = '2025/2026', term = '1st Semester', subjects, courses } = data;
 
-    // Accepts either 'subjects' or 'courses' from the frontend form
-    const courseList = subjects || courses;
+    // Extract fields matching both possible payload naming conventions
+    const studentName = data.studentName || data.name;
+    const regNumber = data.regNumber || data.matricNumber;
+    const password = data.password;
+    const courseList = data.courses || data.subjects || [];
+    const session = data.session || '2025/2026';
+    const term = data.term || '1st Semester';
 
     if (!regNumber || !studentName) {
       return {
@@ -24,7 +28,7 @@ exports.handler = async (event) => {
 
     const { db } = await connectToDatabase();
 
-    // 1. Save or update the student profile (for login access)
+    // 1. Save or update the student profile (for student login access)
     if (password) {
       await db.collection('students').updateOne(
         { regNumber },
@@ -33,7 +37,7 @@ exports.handler = async (event) => {
       );
     }
 
-    // 2. Insert or update the student results
+    // 2. Insert or update the student results record
     await db.collection('results').updateOne(
       { regNumber, session, term },
       { $set: { studentName, regNumber, session, term, courses: courseList, updatedAt: new Date() } },
