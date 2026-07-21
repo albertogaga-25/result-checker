@@ -15,9 +15,22 @@
             
             <form id="studentForm" onsubmit="addStudent(event)">
                 <h3>Student Profile</h3>
-                <input type="text" id="newName" placeholder="Student Full Name (e.g., OGHENEOGAGA  ALBERT)" required>
+                <input type="text" id="newName" placeholder="Student Full Name (e.g., OGHENEOGAGA ALBERT)" required>
                 <input type="text" id="newMatric" placeholder="Matric Number (e.g., NS/CB/24/1134)" required>
                 <input type="password" id="newPass" placeholder="Set Portal Password" required>
+
+                <!-- Academic Session & Semester Selection -->
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <input type="text" id="newSession" placeholder="Academic Session (e.g., 2025/2026)" value="2025/2026" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <select id="newTerm" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <option value="FIRST SEMESTER">First Semester</option>
+                            <option value="SECOND SEMESTER">Second Semester</option>
+                        </select>
+                    </div>
+                </div>
 
                 <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
 
@@ -56,7 +69,7 @@
                         </tr>
                     </thead>
                     <tbody id="directoryTableBody">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
