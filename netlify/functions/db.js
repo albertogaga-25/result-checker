@@ -9,7 +9,7 @@ async function connectToDatabase() {
   }
 
   const client = await MongoClient.connect(process.env.MONGODB_URI);
-  const db = client.db('result_checker_db');
+  const db = client.db('result-checker');
 
   cachedClient = client;
   cachedDb = db;
