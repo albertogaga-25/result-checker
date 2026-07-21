@@ -1,78 +1,58 @@
-const { connectToDatabase } = require('./db');
-
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { 
-      statusCode: 405, 
-      body: JSON.stringify({ error: 'Method Not Allowed' }) 
-    };
-  }
-
-  try {
-    const { role, username, password } = JSON.parse(event.body || '{}');
-
-    // Clean up input by removing accidental leading/trailing spaces
-    const cleanUsername = username ? username.trim() : '';
-    const cleanPassword = password ? password.trim() : '';
-
-    if (!cleanUsername || !cleanPassword) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Username and password required' }),
-      };
+document.addEventListener('DOMContentLoaded', () => {
+    // If student is already logged in, redirect directly to dashboard
+    const currentStudent = localStorage.getItem('currentStudent');
+    if (currentStudent) {
+        window.location.href = 'dashboard.html';
+        return;
     }
 
-    const { db } = await connectToDatabase();
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('loginErrorMessage');
 
-    // --- ADMIN LOGIN ---
-    if (role === 'admin') {
-      const admin = await db.collection('admins').findOne({ 
-        username: cleanUsername, 
-        password: cleanPassword 
-      });
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-      if (!admin) {
-        console.log(`Failed admin login attempt for username: "${cleanUsername}"`);
-        return {
-          statusCode: 401,
-          body: JSON.stringify({ message: 'Invalid admin credentials' }),
-        };
-      }
+            const regNumber = document.getElementById('loginMatric').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const session = document.getElementById('loginSession').value;
+            const term = document.getElementById('loginTerm').value;
 
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, role: 'admin' }),
-      };
-    } 
-    
-    // --- STUDENT LOGIN ---
-    else {
-      const student = await db.collection('students').findOne({ 
-        regNumber: cleanUsername, 
-        password: cleanPassword 
-      });
+            if (errorMsg) errorMsg.innerText = '';
 
-      if (!student) {
-        console.log(`Failed student login attempt for regNumber: "${cleanUsername}"`);
-        return {
-          statusCode: 401,
-          body: JSON.stringify({ message: 'Invalid registration number or password' }),
-        };
-      }
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ regNumber, password, session, term })
+                });
 
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, role: 'student', student }),
-      };
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Save student info along with selected session & term
+                    const studentSessionData = {
+                        ...(data.student || { regNumber }),
+                        regNumber: regNumber,
+                        selectedSession: session,
+                        selectedTerm: term
+                    };
+
+                    localStorage.setItem('currentStudent', JSON.stringify(studentSessionData));
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    if (errorMsg) {
+                        errorMsg.innerText = data.message || data.error || 'Invalid Matric Number, Password, or Session';
+                    }
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                if (errorMsg) {
+                    errorMsg.innerText = 'Unable to connect to server. Please try again.';
+                }
+            }
+        });
     }
-
-  } catch (error) {
-    console.error("Database connection or login error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Server error during login', details: error.message }),
-    };
-  }
-};
+});

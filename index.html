@@ -1,27 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>University Login</title>
-    <!-- We are telling the HTML to look inside the css folder for styles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michael and Cecilia Ibru University - Student Portal</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <div class="login-box">
-    <h2>Result Portal</h2>
-    
-    <select id="roleInput" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ddd;">
-        <option value="student">Student</option>
-        <option value="admin">Admin</option>
-    </select>
+<body class="login-body">
+    <div class="login-container">
+        <div class="logo-header" style="text-align: center; margin-bottom: 20px;">
+            <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+            <p>Student Result Checking Portal</p>
+        </div>
 
-    <input type="text" id="matricInput" placeholder="Matric No or Admin Username">
-    <input type="password" id="passInput" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p id="error" style="color: red;"></p>
-</div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginMatric">Matriculation / Reg Number</label>
+                <input type="text" id="loginMatric" placeholder="e.g. NS/SE/22/1234" required>
+            </div>
 
-    <!-- Linking our logic files -->
-    <script src="js/data.js"></script>
-    <script src="js/auth.js"></script>
+            <div class="form-group">
+                <label for="loginPassword">Password / PIN</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="loginSession">Academic Session</label>
+                <select id="loginSession" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
+                    <option value="2025/2026" selected>2025/2026 Academic Session</option>
+                    <option value="2024/2025">2024/2025 Academic Session</option>
+                    <option value="2023/2024">2023/2024 Academic Session</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="loginTerm">Semester</label>
+                <select id="loginTerm" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
+                    <option value="FIRST SEMESTER">First Semester</option>
+                    <option value="SECOND SEMESTER">Second Semester</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">Check Result</button>
+        </form>
+
+        <p id="loginErrorMessage" style="color: #dc2626; font-weight: bold; text-align: center; margin-top: 15px;"></p>
+    </div>
+
+    <script src="js/login.js"></script>
 </body>
 </html>
