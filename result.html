@@ -3,30 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Result</title>
+  <title>MICHAEL AND CECILIA IBRU UNIVERSITY - Student Result</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-    .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+    .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #0066cc; padding-bottom: 15px; }
+    .header h2 { color: #0056b3; font-size: 20px; margin: 0 0 5px 0; font-weight: bold; }
+    .header p { color: #666; font-size: 14px; margin: 0; }
+    
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .info-label { font-weight: bold; color: #333; }
+    .info-value { color: #555; }
+    
+    .btn-back { display: block; width: 100%; padding: 12px; background-color: #0066cc; color: white; text-align: center; text-decoration: none; border-radius: 6px; margin-top: 25px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; }
+    .btn-back:hover { background-color: #0052a3; }
+    .error-msg { color: red; text-align: center; font-weight: bold; padding: 20px 0; }
   </style>
 </head>
 <body>
+
   <div class="card">
-    <h2>Student Result</h2>
-    <div id="result-container">Loading result...</div>
+    <div class="header">
+      <h2>MICHAEL AND CECILIA IBRU UNIVERSITY</h2>
+      <p>Official Academic Result</p>
+    </div>
+
+    <div id="resultContainer">Loading result...</div>
+
+    <a href="/index.html" class="btn-back">← Back to Portal</a>
   </div>
 
   <script>
-    const data = localStorage.getItem('studentResult');
-    if (data) {
-      const result = JSON.parse(data);
-      document.getElementById('result-container').innerHTML = `
-        <p><strong>Matric Number:</strong> ${result.matricNumber || 'N/A'}</p>
-        <p><strong>Session:</strong> ${result.session || 'N/A'}</p>
-        <p><strong>Semester:</strong> ${result.semester || 'N/A'}</p>
-      `;
+    const storedData = sessionStorage.getItem('studentResult');
+    const resultContainer = document.getElementById('resultContainer');
+
+    if (storedData) {
+      try {
+        const result = JSON.parse(storedData);
+
+        resultContainer.innerHTML = `
+          <div class="info-row">
+            <span class="info-label">Matriculation / Reg Number:</span>
+            <span class="info-value">${result.matricNumber || 'N/A'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Academic Session:</span>
+            <span class="info-value">${result.session || 'N/A'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Semester:</span>
+            <span class="info-value">${result.semester || 'N/A'}</span>
+          </div>
+          ${result.gpa ? `
+          <div class="info-row">
+            <span class="info-label">GPA / Grade Point Average:</span>
+            <span class="info-value"><strong>${result.gpa}</strong></span>
+          </div>` : ''}
+        `;
+      } catch (e) {
+        resultContainer.innerHTML = `<p class="error-msg">Failed to load result data.</p>`;
+      }
     } else {
-      document.getElementById('result-container').innerText = 'No result data found.';
+      resultContainer.innerHTML = `<p class="error-msg">No result found in session. Please return to the login portal and try again.</p>`;
     }
   </script>
+
 </body>
 </html>
