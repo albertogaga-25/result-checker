@@ -1,72 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCIU Admin Panel</title>
-    <style>
-        body { font-family: sans-serif; background: #f4f6f9; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 650px; border: 1px solid #ccc; margin-bottom: 20px; }
-        h2 { text-align: center; margin-bottom: 5px; }
-        p { text-align: center; color: #666; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
-        .btn-green { background: #34a853; color: white; }
-        .btn-black { background: #000; color: white; }
-        .btn-red { background: #d93025; color: white; margin-top: 15px; }
-        .course-box { background: #f8fafc; padding: 15px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCIU Admin Portal</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; display: flex; justify-content: center; padding: 20px; margin: 0; }
+    .container { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+    h2, h4 { text-align: center; color: #333; margin-top: 0; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+    .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #222; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #444; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; outline: none; }
+    input:focus, select:focus { border-color: #007bff; }
+    .course-card { background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
+    .btn-add { background-color: #28a745; color: white; }
+    .btn-save { background-color: #000000; color: white; }
+    .btn-logout { background-color: #dc3545; color: white; }
+    .btn:hover { opacity: 0.9; }
+    #message { text-align: center; margin-top: 15px; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h2>MCIU Admin Portal</h2>
-        <p>Upload Student Semester Records</p>
 
-        <form onsubmit="saveData(event)">
-            <h3>Student Details</h3>
-            <input type="text" placeholder="Student Full Name" required>
-            <input type="text" placeholder="Matric Number (e.g. NS/CB/24/1134)" required>
-            <input type="password" placeholder="Portal Password" required>
+  <div class="container">
+    <h2>MCIU Admin Portal</h2>
+    <p class="subtitle">Upload Student Semester Records</p>
 
-            <div id="courseList">
-                <div class="course-box">
-                    <h4>Course 1</h4>
-                    <input type="text" placeholder="Course Code (e.g. COS 201)" required>
-                    <input type="text" placeholder="Course Title" required>
-                    <input type="number" placeholder="Credit Units" required>
-                    <input type="number" placeholder="Score (0-100)" required>
-                </div>
-            </div>
+    <form id="resultForm">
+      <!-- Student Details Section -->
+      <div class="section-title">Student Details</div>
+      
+      <div class="form-group">
+        <label for="fullName">Student Full Name</label>
+        <input type="text" id="fullName" placeholder="Student Full Name" required>
+      </div>
 
-            <button type="button" class="btn-green" onclick="addCourse()">➕ Add Another Course</button>
-            <button type="submit" class="btn-black">Save Student Record</button>
-        </form>
+      <div class="form-group">
+        <label for="matricNumber">Matric Number</label>
+        <input type="text" id="matricNumber" placeholder="Matric Number (e.g. NS/CB/24/1134)" required>
+      </div>
 
-        <p id="msg" style="color: green; text-align: center; font-weight: bold; margin-top: 10px;"></p>
-        <button class="btn-red" onclick="window.location.href='index.html'">Logout Admin</button>
-    </div>
+      <div class="form-group">
+        <label for="portalPassword">Portal Password</label>
+        <input type="password" id="portalPassword" placeholder="Portal Password" required>
+      </div>
 
-    <script>
-        let count = 1;
-        function addCourse() {
-            count++;
-            const div = document.createElement('div');
-            div.className = 'course-box';
-            div.innerHTML = `
-                <h4>Course ${count}</h4>
-                <input type="text" placeholder="Course Code" required>
-                <input type="text" placeholder="Course Title" required>
-                <input type="number" placeholder="Credit Units" required>
-                <input type="number" placeholder="Score (0-100)" required>
-            `;
-            document.getElementById('courseList').appendChild(div);
+      <!-- Session Dropdown -->
+      <div class="form-group">
+        <label for="sessionSelect">Academic Session</label>
+        <select id="sessionSelect" required>
+          <option value="">-- Select Session --</option>
+          <option value="2024/2025">2024/2025 Academic Session</option>
+          <option value="2025/2026">2025/2026 Academic Session</option>
+        </select>
+      </div>
+
+      <!-- Semester Dropdown -->
+      <div class="form-group">
+        <label for="semesterSelect">Semester</label>
+        <select id="semesterSelect" required>
+          <option value="">-- Select Semester --</option>
+          <option value="First Semester">First Semester</option>
+          <option value="Second Semester">Second Semester</option>
+        </select>
+      </div>
+
+      <!-- Courses Section -->
+      <div id="coursesContainer">
+        <div class="course-card">
+          <div class="section-title">Course 1</div>
+          
+          <div class="form-group">
+            <input type="text" class="course-code" placeholder="Course Code (e.g. COS 201)" required>
+          </div>
+          <div class="form-group">
+            <input type="text" class="course-title" placeholder="Course Title" required>
+          </div>
+          <div class="form-group">
+            <input type="number" class="credit-units" placeholder="Credit Units" min="1" max="10" required>
+          </div>
+          <div class="form-group">
+            <input type="number" class="course-score" placeholder="Score (0-100)" min="0" max="100" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <button type="button" class="btn btn-add" id="addCourseBtn">+ Add Another Course</button>
+      <button type="submit" class="btn btn-save">Save Student Record</button>
+      <button type="button" class="btn btn-logout" id="logoutBtn">Logout Admin</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    let courseCount = 1;
+
+    // Dynamically Add New Course Form Block
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+      courseCount++;
+      const container = document.getElementById('coursesContainer');
+      const courseCard = document.createElement('div');
+      courseCard.className = 'course-card';
+      courseCard.innerHTML = `
+        <div class="section-title">Course ${courseCount}</div>
+        <div class="form-group">
+          <input type="text" class="course-code" placeholder="Course Code (e.g. COS 201)" required>
+        </div>
+        <div class="form-group">
+          <input type="text" class="course-title" placeholder="Course Title" required>
+        </div>
+        <div class="form-group">
+          <input type="number" class="credit-units" placeholder="Credit Units" min="1" max="10" required>
+        </div>
+        <div class="form-group">
+          <input type="number" class="course-score" placeholder="Score (0-100)" min="0" max="100" required>
+        </div>
+      `;
+      container.appendChild(courseCard);
+    });
+
+    // Handle Form Submit
+    document.getElementById('resultForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const messageDiv = document.getElementById('message');
+      messageDiv.style.color = '#007bff';
+      messageDiv.textContent = 'Saving record...';
+
+      // 1. Gather Student & Session Info
+      const fullName = document.getElementById('fullName').value.trim();
+      const matricNumber = document.getElementById('matricNumber').value.trim();
+      const portalPassword = document.getElementById('portalPassword').value;
+      const session = document.getElementById('sessionSelect').value;
+      const semester = document.getElementById('semesterSelect').value;
+
+      // 2. Gather All Courses
+      const courseCards = document.querySelectorAll('.course-card');
+      const courses = [];
+
+      courseCards.forEach(card => {
+        courses.push({
+          code: card.querySelector('.course-code').value.trim(),
+          title: card.querySelector('.course-title').value.trim(),
+          units: Number(card.querySelector('.credit-units').value),
+          score: Number(card.querySelector('.course-score').value)
+        });
+      });
+
+      // 3. Construct Payload
+      const payload = {
+        fullName,
+        matricNumber,
+        portalPassword,
+        session,
+        semester,
+        courses
+      };
+
+      try {
+        const res = await fetch('/api/save-result', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          messageDiv.style.color = 'green';
+          messageDiv.textContent = 'Record saved successfully!';
+          document.getElementById('resultForm').reset();
+        } else {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.message || 'Failed to save record.';
         }
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Network error or server unavailable.';
+      }
+    });
 
-        function saveData(e) {
-            e.preventDefault();
-            document.getElementById('msg').innerText = "Record saved successfully!";
-            setTimeout(() => { document.getElementById('msg').innerText = ""; }, 3000);
-        }
-    </script>
+    // Logout Action
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      window.location.href = '/index.html';
+    });
+  </script>
+
 </body>
 </html>
