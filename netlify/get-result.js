@@ -1,9 +1,9 @@
 const { connectToDatabase } = require('./db');
 
 exports.handler = async (event) => {
-  // Support both GET (query parameters) and POST (JSON body)
   let regNumber, session, term;
 
+  // Accept both GET query parameters and POST body
   if (event.httpMethod === 'GET') {
     const params = event.queryStringParameters || {};
     regNumber = params.regNumber || params.matricNumber;
@@ -28,50 +28,46 @@ exports.handler = async (event) => {
   if (!regNumber) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Registration or matriculation number is required' }),
+      body: JSON.stringify({ error: 'Registration number is required' }),
     };
   }
 
   try {
     const { db } = await connectToDatabase();
 
-    // Construct query — filter by session/term if provided, otherwise fetch the latest record for regNumber
+    // Match registration number case-insensitively
     const query = {
       regNumber: { $regex: new RegExp(`^${regNumber.trim()}$`, 'i') }
     };
+
+    // Only add session/term filter if explicitly provided
     if (session) query.session = session;
     if (term) query.term = term;
 
-    // Find the record matching regNumber (sorted by newest updated)
-    const result = await db.collection('results')
-      .find(query)
-      .sort({ updatedAt: -1 })
-      .limit(1)
-      .toArray();
+    // Search results collection
+    const result = await db.collection('results').findOne(query);
 
-    if (!result || result.length === 0) {
+    if (!result) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: 'Result not found. Please check your details.' }),
+        body: JSON.stringify({ error: 'No result uploaded for this student yet.' }),
       };
     }
 
-    const resultData = result[0];
-
     return {
       statusCode: 200,
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify({
         success: true,
-        studentName: resultData.studentName,
-        regNumber: resultData.regNumber,
-        courses: resultData.courses || resultData.subjects || [],
-        totalUnits: resultData.totalUnits,
-        totalPoints: resultData.totalPoints,
-        gpa: resultData.gpa
+        studentName: result.studentName || result.name,
+        regNumber: result.regNumber,
+        courses: result.courses || result.subjects || [],
+        totalUnits: result.totalUnits,
+        totalPoints: result.totalPoints,
+        gpa: result.gpa
       }),
     };
   } catch (error) {
