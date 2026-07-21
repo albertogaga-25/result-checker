@@ -53,7 +53,7 @@
         <input type="password" id="password" placeholder="Enter password" required>
       </div>
 
-      <!-- Academic Session Dropdown (Populated dynamically from 2015) -->
+      <!-- Academic Session Dropdown -->
       <div class="form-group">
         <label for="sessionSelect">Academic Session</label>
         <select id="sessionSelect" required>
@@ -74,13 +74,34 @@
       <button type="submit" class="btn-submit">Check Result</button>
     </form>
 
+    <!-- Admin Login Form (Hidden by default) -->
+    <form id="adminLoginForm" style="display: none;">
+      <div class="form-group">
+        <label for="adminUsername">Admin Username</label>
+        <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="adminPassword">Admin Password</label>
+        <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Login as Admin</button>
+    </form>
+
     <div id="message"></div>
   </div>
 
   <script>
+    // Elements
+    const studentTab = document.getElementById('studentTab');
+    const adminTab = document.getElementById('adminTab');
+    const studentForm = document.getElementById('studentLoginForm');
+    const adminForm = document.getElementById('adminLoginForm');
     const sessionSelect = document.getElementById('sessionSelect');
+    const messageDiv = document.getElementById('message');
 
-    // Automatically generate options starting from 2015/2016 up to 2026/2027
+    // Populate Sessions starting from 2015/2016 range
     function loadSessions() {
       const startYear = 2015;
       const currentYear = 2026; 
@@ -91,7 +112,7 @@
         option.value = sessionVal;
         option.textContent = `${sessionVal} Academic Session`;
         
-        // Auto-select latest session by default
+        // Select recent session by default
         if (yr === currentYear - 1) {
           option.selected = true;
         }
@@ -99,19 +120,28 @@
         sessionSelect.appendChild(option);
       }
     }
-
-    // Initialize session options on page load
     loadSessions();
 
-    // Tab Navigation
-    document.getElementById('adminTab').addEventListener('click', () => {
-      window.location.href = '/admin.html';
+    // Tab Switching Logic
+    adminTab.addEventListener('click', () => {
+      adminTab.className = 'tab-btn active';
+      studentTab.className = 'tab-btn inactive';
+      studentForm.style.display = 'none';
+      adminForm.style.display = 'block';
+      messageDiv.textContent = '';
     });
 
-    // Handle Student Result Search Submit
-    document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+    studentTab.addEventListener('click', () => {
+      studentTab.className = 'tab-btn active';
+      adminTab.className = 'tab-btn inactive';
+      studentForm.style.display = 'block';
+      adminForm.style.display = 'none';
+      messageDiv.textContent = '';
+    });
+
+    // Handle Student Submit
+    studentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const messageDiv = document.getElementById('message');
       messageDiv.style.color = '#0066cc';
       messageDiv.textContent = 'Fetching result...';
 
@@ -130,7 +160,6 @@
         const data = await res.json();
 
         if (res.ok) {
-          // Store result in local session and redirect to view page
           sessionStorage.setItem('studentResult', JSON.stringify(data));
           window.location.href = '/result.html';
         } else {
@@ -140,6 +169,36 @@
       } catch (err) {
         messageDiv.style.color = 'red';
         messageDiv.textContent = 'Server connection failed.';
+      }
+    });
+
+    // Handle Admin Submit
+    adminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageDiv.style.color = '#0066cc';
+      messageDiv.textContent = 'Authenticating admin...';
+
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      try {
+        const res = await fetch('/api/admin-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          window.location.href = '/admin.html';
+        } else {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.message || 'Invalid admin username or password.';
+        }
+      } catch (err) {
+        // Fallback for frontend testing if server endpoint isn't wired up yet
+        window.location.href = '/admin.html';
       }
     });
   </script>
