@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Michael and Cecilia Ibru University - Portal Login</title>
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        function showRole(role) {
+            const studentForm = document.getElementById('studentLoginForm');
+            const adminForm = document.getElementById('adminLoginForm');
+            const btnStudent = document.getElementById('btnStudentRole');
+            const btnAdmin = document.getElementById('btnAdminRole');
+            const errorMsg = document.getElementById('loginErrorMessage');
+
+            if (errorMsg) errorMsg.innerText = '';
+
+            if (role === 'student') {
+                studentForm.style.display = 'block';
+                adminForm.style.display = 'none';
+                btnStudent.style.backgroundColor = '#0066cc';
+                btnStudent.style.color = '#ffffff';
+                btnAdmin.style.backgroundColor = '#e0e0e0';
+                btnAdmin.style.color = '#333333';
+            } else {
+                studentForm.style.display = 'none';
+                adminForm.style.display = 'block';
+                btnAdmin.style.backgroundColor = '#000000';
+                btnAdmin.style.color = '#ffffff';
+                btnStudent.style.backgroundColor = '#e0e0e0';
+                btnStudent.style.color = '#333333';
+            }
+        }
+    </script>
 </head>
 <body class="login-body">
     <div class="login-container" style="max-width: 500px; margin: 40px auto; padding: 25px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
@@ -15,10 +42,10 @@
 
         <!-- Role Selector Buttons -->
         <div class="role-selector" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button type="button" id="btnStudentRole" style="flex: 1; padding: 12px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            <button type="button" id="btnStudentRole" onclick="showRole('student')" style="flex: 1; padding: 12px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
                 🎓 Student
             </button>
-            <button type="button" id="btnAdminRole" style="flex: 1; padding: 12px; background-color: #e0e0e0; color: #333; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            <button type="button" id="btnAdminRole" onclick="showRole('admin')" style="flex: 1; padding: 12px; background-color: #e0e0e0; color: #333; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
                 🔑 Admin
             </button>
         </div>
