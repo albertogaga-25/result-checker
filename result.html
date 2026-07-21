@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Result</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Student Result</h2>
+    <div id="result-container">Loading result...</div>
+  </div>
+
+  <script>
+    const data = localStorage.getItem('studentResult');
+    if (data) {
+      const result = JSON.parse(data);
+      document.getElementById('result-container').innerHTML = `
+        <p><strong>Matric Number:</strong> ${result.matricNumber || 'N/A'}</p>
+        <p><strong>Session:</strong> ${result.session || 'N/A'}</p>
+        <p><strong>Semester:</strong> ${result.semester || 'N/A'}</p>
+      `;
+    } else {
+      document.getElementById('result-container').innerText = 'No result data found.';
+    }
+  </script>
+</body>
+</html>
