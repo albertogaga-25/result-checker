@@ -1,43 +1,78 @@
 const { connectToDatabase } = require('./db');
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
+  // Support both GET (query parameters) and POST (JSON body)
+  let regNumber, session, term;
+
+  if (event.httpMethod === 'GET') {
+    const params = event.queryStringParameters || {};
+    regNumber = params.regNumber || params.matricNumber;
+    session = params.session;
+    term = params.term;
+  } else if (event.httpMethod === 'POST') {
+    try {
+      const body = JSON.parse(event.body || '{}');
+      regNumber = body.regNumber || body.matricNumber;
+      session = body.session;
+      term = body.term;
+    } catch (e) {
+      // JSON parse fallback
+    }
+  } else {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
 
+  if (!regNumber) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Registration or matriculation number is required' }),
+    };
+  }
+
   try {
-    const { regNumber, session, term } = JSON.parse(event.body || '{}');
-
-    if (!regNumber || !session || !term) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Registration number, session, and term are required' }),
-      };
-    }
-
     const { db } = await connectToDatabase();
-    
-    // Case-insensitive match for regNumber
-    const result = await db.collection('results').findOne({
-      regNumber: { $regex: new RegExp(`^${regNumber}$`, 'i') },
-      session,
-      term,
-    });
 
-    if (!result) {
+    // Construct query — filter by session/term if provided, otherwise fetch the latest record for regNumber
+    const query = {
+      regNumber: { $regex: new RegExp(`^${regNumber.trim()}$`, 'i') }
+    };
+    if (session) query.session = session;
+    if (term) query.term = term;
+
+    // Find the record matching regNumber (sorted by newest updated)
+    const result = await db.collection('results')
+      .find(query)
+      .sort({ updatedAt: -1 })
+      .limit(1)
+      .toArray();
+
+    if (!result || result.length === 0) {
       return {
         statusCode: 404,
         body: JSON.stringify({ error: 'Result not found. Please check your details.' }),
       };
     }
 
+    const resultData = result[0];
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true, result }),
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({
+        success: true,
+        studentName: resultData.studentName,
+        regNumber: resultData.regNumber,
+        courses: resultData.courses || resultData.subjects || [],
+        totalUnits: resultData.totalUnits,
+        totalPoints: resultData.totalPoints,
+        gpa: resultData.gpa
+      }),
     };
   } catch (error) {
     return {
